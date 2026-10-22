@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shantikunj Hostel - Boys PMS, OPEX & Financial Engine</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+:root {
+  --bg: #f1f5f9; --surface: #ffffff; --panel: #f8fafc; --ink: #0f172a; --mute: #64748b;
+  --line: #e2e8f0; --line-strong: #cbd5e1; --acc: #0284c7; --acc-soft: #e0f2fe;
+  --green: #10b981; --green-soft: #ecfdf5; --warn: #ef4444; --warn-soft: #fef2f2;
+  --amber: #d97706; --amber-soft: #fffbeb; --amber-border: #fde68a;
+  --purple: #7c3aed; --purple-soft: #f5f3ff; --purple-border: #ddd6fe;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+}
+* { box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+body { margin: 0; background: var(--bg); color: var(--ink); padding: 14px; }
+main { max-width: 980px; margin: 0 auto; padding-bottom: 80px; }
+
+.property-switcher {
+  background: #0f172a; color: #fff; border-radius: 12px; padding: 8px 16px;
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+  font-size: 12px; font-weight: 700; flex-wrap: wrap; gap: 8px;
+}
+.switch-pills { display: flex; gap: 6px; }
+.switch-pill {
+  padding: 5px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700;
+  color: #94a3b8; background: rgba(255,255,255,0.08); transition: 0.15s;
+}
+.switch-pill.active { background: #38bdf8; color: #0f172a; }
+.switch-pill:hover:not(.active) { background: rgba(255,255,255,0.18); color: #fff; }
+
+header {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+  padding: 16px 22px; display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px; box-shadow: var(--shadow-sm); flex-wrap: wrap; gap: 12px;
+}
+h1 { margin: 0; font-size: 21px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; }
+.sub { font-size: 12px; color: var(--mute); margin-top: 2px; font-weight: 600; }
+.header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.sync-bar {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 16px; display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px; font-size: 13px; box-shadow: var(--shadow-sm); flex-wrap: wrap; gap: 8px;
+}
+.sync-status { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--warn); }
+.dot.live { background: var(--green); }
+.sync-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 14px; }
+@media (max-width: 780px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.stat-box {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 12px 14px; box-shadow: var(--shadow-sm);
+}
+.stat-box span { font-size: 11px; color: var(--mute); font-weight: 700; display: block; margin-bottom: 4px; text-transform: uppercase; }
+.stat-box b { font-size: 20px; color: var(--ink); font-weight: 800; }
+
+.nav-tabs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
+@media (max-width: 780px) { .nav-tabs { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 480px) { .nav-tabs { grid-template-columns: repeat(2, 1fr); } }
+.tab-btn {
+  background: var(--surface); border: 1px solid var(--line); color: var(--mute);
+  padding: 10px 6px; border-radius: 10px; font-weight: 700; font-size: 12px; cursor: pointer; text-align: center;
+}
+.tab-btn.active { background: var(--ink); border-color: var(--ink); color: #ffffff; }
+
+.section-box {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+  padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow-sm);
+}
+h2 { margin: 0 0 14px; font-size: 16px; font-weight: 800; color: var(--ink); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+
+.legend-bar { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; font-weight: 700; color: var(--mute); margin-bottom: 10px; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-swatch { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+
+.floor-title {
+  background: var(--panel); border-left: 4px solid var(--acc); padding: 9px 14px;
+  margin: 18px 0 10px; font-weight: 800; font-size: 14px; color: var(--ink); border-radius: 0 8px 8px 0;
+}
+.floor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+@media (max-width: 820px) { .floor-grid { grid-template-columns: 1fr; } }
+.room-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 13px; }
+.room-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.room-num { font-weight: 800; font-size: 14px; color: var(--ink); }
+.room-cap { font-size: 11.5px; font-weight: 700; }
+.room-cap.full { color: var(--warn); }
+.room-cap.vacant { color: var(--green); }
+
+.bed-slots { display: grid; gap: 8px; }
+.bed-slot { border-radius: 8px; padding: 8px 11px; font-size: 12.5px; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.bed-slot.occupied { background: #ffffff; border: 1px solid var(--line-strong); cursor: pointer; }
+.bed-slot.occupied:hover { border-color: var(--acc); }
+.bed-slot.notice { background: var(--amber-soft); border: 1.5px solid var(--amber-border); cursor: pointer; }
+.bed-slot.booked { background: var(--purple-soft); border: 1.5px solid var(--purple-border); cursor: pointer; }
+.bed-slot.empty { background: transparent; border: 1.5px dashed var(--line-strong); color: var(--mute); cursor: pointer; }
+.bed-slot.empty:hover { border-color: var(--green); color: var(--green); }
+
+.btn {
+  border-radius: 9px; border: none; font-weight: 700; font-size: 12px; cursor: pointer;
+  padding: 8px 13px; display: inline-flex; align-items: center; gap: 5px; text-decoration: none;
+}
+.btn-primary { background: var(--ink); color: #fff; }
+.btn-green { background: var(--green); color: #fff; }
+.btn-amber { background: var(--amber); color: #fff; }
+.btn-ghost { background: var(--panel); border: 1px solid var(--line-strong); color: var(--ink); }
+.btn-sm { padding: 6px 10px; font-size: 11px; }
+
+.badge { display: inline-block; padding: 3px 7px; border-radius: 6px; font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+.badge-due { background: var(--warn-soft); color: var(--warn); border: 1px solid #fecaca; }
+.badge-partial { background: var(--amber-soft); color: var(--amber); border: 1px solid var(--amber-border); }
+.badge-clear { background: var(--green-soft); color: var(--green); border: 1px solid #a7f3d0; }
+.badge-notice { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.badge-booked { background: var(--purple-soft); color: var(--purple); border: 1px solid var(--purple-border); }
+
+.tenant-card { background: #ffffff; border: 1px solid var(--line); border-radius: 14px; padding: 15px; margin-bottom: 10px; }
+.tc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
+.tc-name { font-size: 15px; font-weight: 800; color: var(--ink); }
+.tc-room { color: var(--acc); font-weight: 700; font-size: 13px; }
+.tc-body { font-size: 13px; color: var(--mute); line-height: 1.6; margin-bottom: 10px; }
+.tc-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.log-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+.log-table th, .log-table td { padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+.log-table th { color: var(--mute); font-weight: 700; font-size: 11px; text-transform: uppercase; background: var(--panel); }
+
+.fin-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 18px; }
+@media (max-width: 780px) { .fin-grid { grid-template-columns: repeat(2, 1fr); } }
+.fin-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 13px; }
+.fin-card span { font-size: 10.5px; font-weight: 700; color: var(--mute); text-transform: uppercase; display: block; margin-bottom: 5px; }
+.fin-card b { font-size: 19px; font-weight: 800; color: var(--ink); }
+.fin-card small { display: block; font-size: 11px; color: var(--mute); margin-top: 4px; }
+
+.chip-group { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.chip { background: var(--panel); border: 1px solid var(--line-strong); border-radius: 20px; padding: 6px 12px; font-size: 12px; font-weight: 700; color: var(--ink); cursor: pointer; }
+.chip.active { background: var(--acc); color: #fff; border-color: var(--acc); }
+
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 14px; }
+.modal-box { background: #ffffff; border: 1px solid var(--line); border-radius: 18px; max-width: 540px; width: 100%; padding: 20px; max-height: 88vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.modal-header h3 { margin: 0; font-size: 17px; font-weight: 800; color: var(--ink); }
+.close-btn { background: transparent; border: none; font-size: 24px; color: var(--mute); cursor: pointer; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+@media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+label { display: block; font-size: 12px; font-weight: 700; color: var(--mute); margin-bottom: 5px; }
+input, select { width: 100%; background: var(--panel); border: 1px solid var(--line-strong); color: var(--ink); padding: 10px 12px; border-radius: 9px; font-size: 14px; outline: none; }
+</style>
+</head>
+<body>
+<main>
+  <!-- 1-CLICK OWNER PROPERTY SWITCHER -->
+  <div class="property-switcher">
+    <span>🏢 OWNER PORTFOLIO SWITCHER:</span>
+    <div class="switch-pills">
+      <a href="https://dataseute-art.github.io/meeran-pay/Meeran_Bhavan_Pro.html" class="switch-pill">Meeran Bhavan (27 Beds)</a>
+      <a href="https://dataseute-art.github.io/shantikunj-pay/Shantikunj_Pro.html" class="switch-pill active">Shantikunj Boys Hostel (36 Beds)</a>
+    </div>
+  </div>
+
+  <header>
+    <div>
+      <h1>Shantikunj Hostel</h1>
+      <div class="sub">Boys Hostel PMS • 6 Flats (1 BHK Layout) • 36 Total Beds</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-amber btn-sm" onclick="window.openExpenseModal()">💸 + Add OPEX Bill</button>
+      <button class="btn btn-green btn-sm" onclick="window.openRecordPaymentModal()">💰 + Collect Rent</button>
+      <button class="btn btn-primary btn-sm" onclick="window.backupJSON()">Backup</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importInput').click()">Restore</button>
+      <input type="file" id="importInput" style="display:none" accept=".json" onchange="window.importJSON(event)">
+    </div>
+  </header>
+
+  <div class="sync-bar">
+    <div class="sync-status">
+      <div class="dot" id="syncDot"></div>
+      <span id="syncText">Shantikunj Cloud Sync: Not Configured</span>
+    </div>
+    <div class="sync-btns">
+      <button class="btn btn-primary btn-sm" onclick="window.fetchFromCloud()">🔄 Pull from Cloud</button>
+      <button class="btn btn-ghost btn-sm" onclick="window.openGoogleSheet()">Open Shantikunj Sheet</button>
+      <button class="btn btn-ghost btn-sm" onclick="window.setDriveUrl()">Config Drive URL</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-box"><span>Occupancy</span><b id="stBeds">0/36</b></div>
+    <div class="stat-box"><span>Vacant / Notice</span><b id="stVacant" style="color:var(--green)">36</b></div>
+    <div class="stat-box"><span>Pending Dues</span><b id="stDues" style="color:var(--warn)">₹0</b></div>
+    <div class="stat-box"><span>MTD Rent Collected</span><b id="stPaid" style="color:var(--green)">₹0</b></div>
+    <div class="stat-box"><span>MTD Net Profit</span><b id="stNetProfit" style="color:var(--acc)">₹0</b></div>
+  </div>
+
+  <nav class="nav-tabs">
+    <button class="tab-btn active" id="tabMap" onclick="window.switchTab('map')">🏢 Flat &amp; Bed Map</button>
+    <button class="tab-btn" id="tabRoster" onclick="window.switchTab('roster')">👥 Active List</button>
+    <button class="tab-btn" id="tabFin" onclick="window.switchTab('fin')">📊 Financials</button>
+    <button class="tab-btn" id="tabOpex" onclick="window.switchTab('opex')">💸 OPEX Bills</button>
+    <button class="tab-btn" id="tabLogs" onclick="window.switchTab('logs')">📜 Rent Ledger</button>
+    <button class="tab-btn" id="tabAdmit" onclick="window.switchTab('admit')">➕ Admit / Book</button>
+    <button class="tab-btn" id="tabPast" onclick="window.switchTab('past')">🗄️ Archives</button>
+  </nav>
+
+  <!-- VIEW 1: FLOOR & FLAT MAP -->
+  <section id="viewMap" class="section-box">
+    <h2>
+      <span>Flat &amp; Bed Matrix (6 Flats • 36 Beds)</span>
+      <span style="font-size:12px;color:var(--mute);font-weight:500">Each Flat = Hall (Double), Bedroom (Triple), Single Room</span>
+    </h2>
+    <div class="legend-bar">
+      <div class="legend-item"><span class="legend-swatch" style="background:#ecfdf5;border:1px solid #10b981"></span> Rent Paid</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#fef2f2;border:1px solid #ef4444"></span> Rent Due</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#fffbeb;border:1.5px solid #d97706"></span> ⏳ On Notice (Vacating Date Set)</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:#f5f3ff;border:1.5px solid #7c3aed"></span> 🔒 Token Booked</div>
+    </div>
+    <div id="floorMapContainer"></div>
+  </section>
+
+  <!-- VIEW 2: ACTIVE ROSTER -->
+  <section id="viewRoster" class="section-box" style="display:none">
+    <h2>Current Occupants &amp; Notice List</h2>
+    <div id="rosterList"></div>
+  </section>
+
+  <!-- VIEW 3: FINANCIAL ANALYTICS -->
+  <section id="viewFin" class="section-box" style="display:none">
+    <h2>
+      <span>📊 Shantikunj Revenue, OPEX &amp; Net Profit (P&amp;L)</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-green btn-sm" onclick="window.openRecordPaymentModal()">💰 + Collect Rent</button>
+        <button class="btn btn-amber btn-sm" onclick="window.openExpenseModal()">💸 + Add Expense</button>
+        <button class="btn btn-ghost btn-sm" onclick="window.exportFinancialCSV()">📥 Export CSV</button>
+      </div>
+    </h2>
+
+    <div class="fin-grid">
+      <div class="fin-card" style="border-left:4px solid var(--green)">
+        <span>MTD Rent Revenue</span>
+        <b id="finMTD" style="color:var(--green)">₹0</b>
+        <small id="finMTDLabel">Current Month</small>
+      </div>
+      <div class="fin-card" style="border-left:4px solid var(--warn)">
+        <span>MTD OPEX (Expenses)</span>
+        <b id="finMTDOpex" style="color:var(--warn)">₹0</b>
+        <small>Bills &amp; Upkeep</small>
+      </div>
+      <div class="fin-card" style="border-left:4px solid var(--acc)">
+        <span>MTD Net Profit</span>
+        <b id="finMTDNet" style="color:var(--acc)">₹0</b>
+        <small>Cash in Hand</small>
+      </div>
+      <div class="fin-card" style="border-left:4px solid var(--ink)">
+        <span>FY Net Profit (YTD)</span>
+        <b id="finYTD">₹0</b>
+        <small id="finYTDLabel">Financial Year</small>
+      </div>
+      <div class="fin-card" style="border-left:4px solid var(--purple)">
+        <span>Deposits Held</span>
+        <b id="finDeposits" style="color:var(--purple)">₹0</b>
+        <small>Active Liability</small>
+      </div>
+    </div>
+
+    <h3 style="font-size:14px;margin:20px 0 10px;color:var(--ink)">Quarterly P&amp;L Performance (Indian Fiscal Apr–Mar)</h3>
+    <div style="overflow-x:auto">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>Fiscal Quarter</th>
+            <th>Period</th>
+            <th>Gross Rent Revenue</th>
+            <th>Operating Expenses (OPEX)</th>
+            <th>Net Take-Home Profit</th>
+            <th>Deposits Received</th>
+          </tr>
+        </thead>
+        <tbody id="quarterTableBody"></tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:14px;margin:24px 0 10px;color:var(--ink)">Month-by-Month P&amp;L Breakdown</h3>
+    <div style="overflow-x:auto">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Expected Rent</th>
+            <th>Gross Rent Collected</th>
+            <th>OPEX Expenses</th>
+            <th>Net Profit (EBITDA)</th>
+            <th>Collection %</th>
+          </tr>
+        </thead>
+        <tbody id="monthTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- VIEW 4: OPEX EXPENSE TRACKER -->
+  <section id="viewOpex" class="section-box" style="display:none">
+    <h2>
+      <span>💸 Operating Expenses (OPEX) &amp; Uploaded Bills</span>
+      <button class="btn btn-amber btn-sm" onclick="window.openExpenseModal()">+ Add New Expense / Upload Bill</button>
+    </h2>
+    <div style="overflow-x:auto">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Description / Flat / Vendor</th>
+            <th>Mode</th>
+            <th>Amount</th>
+            <th>Bill / Receipt</th>
+          </tr>
+        </thead>
+        <tbody id="expenseLogBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- VIEW 5: RENT LEDGER LOG -->
+  <section id="viewLogs" class="section-box" style="display:none">
+    <h2>
+      <span>📜 Immutable Rent &amp; Deposit Transaction Ledger</span>
+      <button class="btn btn-green btn-sm" onclick="window.openRecordPaymentModal()">+ Add Payment</button>
+    </h2>
+    <div style="overflow-x:auto">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Bed Slot</th>
+            <th>Tenant</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Proof / WhatsApp Receipt</th>
+          </tr>
+        </thead>
+        <tbody id="paymentLogBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- VIEW 6: ADMIT OR BOOK STUDENT -->
+  <section id="viewAdmit" class="section-box" style="display:none">
+    <h2>Admit Student or Reserve Bed (Token Booking)</h2>
+    <div class="row">
+      <div><label>Select Flat, Room &amp; Bed</label><select id="inRoomSelect"></select></div>
+      <div>
+        <label>Onboarding Type</label>
+        <select id="inStatusType">
+          <option value="Active">✅ Active Move-In</option>
+          <option value="Booked">🔒 Token Advance Booking (Hold Bed)</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>Student Name</label><input id="inName" placeholder="Full name"></div>
+      <div><label>WhatsApp Number</label><input id="inPhone" type="tel" placeholder="10-digit number"></div>
+    </div>
+    <div class="row">
+      <div><label>Monthly Agreed Rent (₹)</label><input id="inRent" type="number" placeholder="6000"></div>
+      <div><label>Deposit / Token Paid (₹)</label><input id="inDeposit" type="number" placeholder="6000"></div>
+    </div>
+    <div class="row">
+      <div><label>Joining Date</label><input id="inDate" type="date"></div>
+      <div><label>Student Email</label><input id="inEmail" type="email" placeholder="student@gmail.com"></div>
+    </div>
+    <div class="row">
+      <div>
+        <label>First Month Rent Status</label>
+        <select id="inFirstRentPaid">
+          <option value="no">Pending (Show as Due)</option>
+          <option value="yes">Paid Today (Log in This Month Revenue)</option>
+        </select>
+      </div>
+      <div><label>Parent / Emergency Contact</label><input id="inParent" type="tel" placeholder="Parent mobile"></div>
+    </div>
+    <button class="btn btn-green" style="width:100%;margin-top:12px;padding:12px" onclick="window.admitStudent()">Save &amp; Sync to Cloud</button>
+  </section>
+
+  <!-- VIEW 7: ARCHIVES -->
+  <section id="viewPast" class="section-box" style="display:none">
+    <h2>🗄️ Vacated Tenants Archive (With Join &amp; Exit Dates)</h2>
+    <div id="pastList"></div>
+  </section>
+</main>
+
+<!-- MODAL 1: TENANT PROFILE & QUICK ACTIONS -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalStudentName">Tenant Profile</h3>
+      <button class="close-btn" onclick="window.closeModal()">&times;</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- MODAL 2: VACATING DATE / NOTICE PERIOD / FINAL SETTLEMENT -->
+<div class="modal-overlay" id="vacateModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>🚪 Vacate Bed / Set Notice Date</h3>
+      <button class="close-btn" onclick="document.getElementById('vacateModal').style.display='none'">&times;</button>
+    </div>
+    <input type="hidden" id="vacStudentId">
+    <div style="background:var(--amber-soft);border:1px solid var(--amber-border);padding:12px;border-radius:10px;font-size:12.5px;color:#92400e;margin-bottom:14px">
+      💡 <b>Tip:</b> Choose <b>"Put on Notice"</b> to turn the bed Amber with their exit date shown on the Floor Map. Choose <b>"Final Move-Out"</b> when they actually vacate.
+    </div>
+    <div class="row">
+      <div>
+        <label>Action Mode</label>
+        <select id="vacActionMode" onchange="window.toggleVacateSettlementUI()">
+          <option value="Notice">⏳ Put on Notice (Mark Bed Amber)</option>
+          <option value="Vacated">🚪 Final Move-Out &amp; Free Up Bed Now</option>
+        </select>
+      </div>
+      <div>
+        <label>Date of Vacating *</label>
+        <input type="date" id="vacDateInput">
+      </div>
+    </div>
+
+    <div id="settlementFields" style="display:none;background:var(--panel);padding:14px;border-radius:12px;border:1px solid var(--line);margin-top:10px">
+      <h4 style="margin:0 0 10px;font-size:13px;color:var(--ink)">Security Deposit Settlement Calculator</h4>
+      <div class="row">
+        <div>
+          <label>Deposit Currently Held (₹)</label>
+          <input type="number" id="vacDepHeld" readonly>
+        </div>
+        <div>
+          <label>Deductions / Notice Penalty / Damage (₹)</label>
+          <input type="number" id="vacDeduction" value="0" oninput="window.calcRefundPreview()">
+        </div>
+      </div>
+      <div>
+        <label>Net Deposit Refundable to Student (₹)</label>
+        <input type="number" id="vacRefundAmt" readonly style="font-weight:800;color:var(--green)">
+      </div>
+    </div>
+
+    <button class="btn btn-amber" style="width:100%;margin-top:14px;padding:12px" onclick="window.confirmVacateOrNotice()">Confirm &amp; Update Cloud</button>
+  </div>
+</div>
+
+<!-- MODAL 3: MOBILE-FIRST OPEX & BILL UPLOAD -->
+<div class="modal-overlay" id="expenseModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>💸 Add Operating Expense (OPEX)</h3>
+      <button class="close-btn" onclick="document.getElementById('expenseModal').style.display='none'">&times;</button>
+    </div>
+
+    <label>Quick Select Category</label>
+    <div class="chip-group" id="opexChips">
+      <span class="chip active" onclick="window.selectOpexCategory('Electricity (MSEB)', this)">⚡ Electricity (MSEB)</span>
+      <span class="chip" onclick="window.selectOpexCategory('Water / Tanker', this)">💧 Water</span>
+      <span class="chip" onclick="window.selectOpexCategory('Cleaning / Staff Salary', this)">🧹 Staff / Cleaning</span>
+      <span class="chip" onclick="window.selectOpexCategory('Wi-Fi / Internet', this)">📶 Wi-Fi</span>
+      <span class="chip" onclick="window.selectOpexCategory('Plumbing / Electrical Repair', this)">🔧 Repairs</span>
+      <span class="chip" onclick="window.selectOpexCategory('Property Tax / Other', this)">📑 Other</span>
+    </div>
+    <input type="hidden" id="expCategory" value="Electricity (MSEB)">
+
+    <div class="row">
+      <div>
+        <label>Expense Date *</label>
+        <input type="date" id="expDate">
+      </div>
+      <div>
+        <label>Amount Paid (₹) *</label>
+        <input type="number" id="expAmount" placeholder="e.g. 3500">
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Flat / Vendor / Description *</label>
+        <input type="text" id="expDesc" placeholder="e.g. Flat 101 MSEB Bill / Plumber">
+      </div>
+      <div>
+        <label>Payment Mode</label>
+        <select id="expMode">
+          <option value="UPI / GPay">UPI / GPay / PhonePe</option>
+          <option value="Cash">Cash</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="background:var(--panel);border:1.5px dashed var(--line-strong);padding:12px;border-radius:10px;margin-top:8px">
+      <label style="color:var(--ink)">📸 Upload Bill Photo or PDF (Optional - Works with Mobile Camera)</label>
+      <input type="file" id="expBillFile" accept="image/*,.pdf" style="border:none;padding:4px 0;background:transparent">
+    </div>
+
+    <button class="btn btn-amber" id="btnSaveExp" style="width:100%;margin-top:14px;padding:12px" onclick="window.submitExpense()">Save Expense to Google Sheet</button>
+  </div>
+</div>
+
+<!-- MODAL 4: EDIT / SWAP BED ALLOCATION -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>✏️ Edit Profile / Swap Bed</h3>
+      <button class="close-btn" onclick="window.closeEditModal()">&times;</button>
+    </div>
+    <input type="hidden" id="editStudentId">
+    <div class="row">
+      <div><label>Student Name</label><input id="editName"></div>
+      <div><label>WhatsApp Phone</label><input id="editPhone"></div>
+    </div>
+    <div class="row">
+      <div><label>Monthly Rent (₹)</label><input id="editRent" type="number"></div>
+      <div><label>Current Pending Due (₹)</label><input id="editDue" type="number"></div>
+    </div>
+    <div class="row">
+      <div><label>Deposit Held (₹)</label><input id="editDeposit" type="number"></div>
+      <div><label>Joining Date</label><input id="editJoinDate" type="date"></div>
+    </div>
+    <div class="row">
+      <div><label>Swap / Assigned Bed</label><select id="editRoomSelect"></select></div>
+      <div>
+        <label>Occupancy Status</label>
+        <select id="editStatus">
+          <option value="Active">Active</option>
+          <option value="Notice">On Notice (Vacating Soon)</option>
+          <option value="Booked">Booked (Token Advance)</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>Student Email</label><input id="editEmail" type="email"></div>
+      <div><label>Scheduled Vacating Date</label><input id="editVacateDate" type="date"></div>
+    </div>
+    <button class="btn btn-green" style="width:100%;margin-top:14px;padding:11px" onclick="window.saveEditedProfile()">Save &amp; Sync Changes</button>
+  </div>
+</div>
+
+<!-- MODAL 5: RECORD RENT PAYMENT -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>💰 Record Rent / Partial Payment</h3>
+      <button class="close-btn" onclick="document.getElementById('payModal').style.display='none'">&times;</button>
+    </div>
+    <div class="row">
+      <div>
+        <label>Select Tenant</label>
+        <select id="payModalTenant" onchange="window.syncPayModalTenant()"></select>
+      </div>
+      <div>
+        <label>Payment Date</label>
+        <input type="date" id="payModalDate">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Payment Category</label>
+        <select id="payModalCat">
+          <option value="RENT">Monthly Rent (Full or Partial)</option>
+          <option value="DEPOSIT">Security Deposit Top-Up</option>
+        </select>
+      </div>
+      <div>
+        <label>Amount Received (₹)</label>
+        <input type="number" id="payModalAmt" placeholder="6000">
+      </div>
+    </div>
+    <div>
+      <label>Payment Mode / Notes</label>
+      <input type="text" id="payModalNotes" placeholder="e.g. GPay / Cash / Partial Payment">
+    </div>
+    <button class="btn btn-green" style="width:100%;margin-top:14px;padding:12px" onclick="window.submitManualPayment()">Record Payment &amp; Update Due</button>
+  </div>
+</div>
+
+<script>
+// SHANTIKUNJ 36-BED STRUCTURE: 3 Floors, 6 Flats (101, 102, 201, 202, 301, 302)
+// Each Flat has: Hall (2 Beds), Bedroom (3 Beds), Standard Single Room (1 Bed) = 6 Beds/Flat
+var HOSTEL_STRUCTURE = [
+  {
+    floor: "First Floor — Flat 101 & Flat 102",
+    rooms: [
+      { no: "101 (Hall)", label: "Flat 101 • Hall", cap: 2, type: "Double Sharing" },
+      { no: "101 (Bedroom)", label: "Flat 101 • Bedroom", cap: 3, type: "Triple Sharing" },
+      { no: "101 (Single)", label: "Flat 101 • Single Room", cap: 1, type: "Standard Single" },
+      { no: "102 (Hall)", label: "Flat 102 • Hall", cap: 2, type: "Double Sharing" },
+      { no: "102 (Bedroom)", label: "Flat 102 • Bedroom", cap: 3, type: "Triple Sharing" },
+      { no: "102 (Single)", label: "Flat 102 • Single Room", cap: 1, type: "Standard Single" }
+    ]
+  },
+  {
+    floor: "Second Floor — Flat 201 & Flat 202",
+    rooms: [
+      { no: "201 (Hall)", label: "Flat 201 • Hall", cap: 2, type: "Double Sharing" },
+      { no: "201 (Bedroom)", label: "Flat 201 • Bedroom", cap: 3, type: "Triple Sharing" },
+      { no: "201 (Single)", label: "Flat 201 • Single Room", cap: 1, type: "Standard Single" },
+      { no: "202 (Hall)", label: "Flat 202 • Hall", cap: 2, type: "Double Sharing" },
+      { no: "202 (Bedroom)", label: "Flat 202 • Bedroom", cap: 3, type: "Triple Sharing" },
+      { no: "202 (Single)", label: "Flat 202 • Single Room", cap: 1, type: "Standard Single" }
+    ]
+  },
+  {
+    floor: "Third Floor — Flat 301 & Flat 302",
+    rooms: [
+      { no: "301 (Hall)", label: "Flat 301 • Hall", cap: 2, type: "Double Sharing" },
+      { no: "301 (Bedroom)", label: "Flat 301 • Bedroom", cap: 3, type: "Triple Sharing" },
+      { no: "301 (Single)", label: "Flat 301 • Single Room", cap: 1, type: "Standard Single" },
+      { no: "302 (Hall)", label: "Flat 302 • Hall", cap: 2, type: "Double Sharing" },
+      { no: "302 (Bedroom)", label: "Flat 302 • Bedroom", cap: 3, type: "Triple Sharing" },
+      { no: "302 (Single)", label: "Flat 302 • Single Room", cap: 1, type: "Standard Single" }
+    ]
+  }
+];
+var BED_LETTERS = ["A", "B", "C"];
+
+// ISOLATED SHANTIKUNJ LOCALSTORAGE KEYS (Never clashes with Meeran Bhavan)
+var DB = [];
+var LEDGER = [];
+var EXPENSES = [];
+try {
+  var s1 = localStorage.getItem("shantikunj_pms_data");
+  if (s1) DB = JSON.parse(s1);
+  if (!Array.isArray(DB)) DB = [];
+  var s2 = localStorage.getItem("shantikunj_pms_ledger");
+  if (s2) LEDGER = JSON.parse(s2);
+  if (!Array.isArray(LEDGER)) LEDGER = [];
+  var s3 = localStorage.getItem("shantikunj_pms_expenses");
+  if (s3) EXPENSES = JSON.parse(s3);
+  if (!Array.isArray(EXPENSES)) EXPENSES = [];
+} catch(e) { DB = []; LEDGER = []; EXPENSES = []; }
+
+function normalizeBedKey(str) {
+  if (!str) return "";
+  var s = String(str).trim();
+  var matchFlat = s.match(/(\d{3})\s*\(\s*([A-Za-z]+)\s*\)\s*-\s*Bed\s*([A-Za-z0-9]+)/i);
+  if (matchFlat) {
+    var flatNo = matchFlat[1];
+    var rawZone = matchFlat[2].toLowerCase();
+    var zone = "Hall";
+    if (rawZone.indexOf("bed") === 0) zone = "Bedroom";
+    else if (rawZone.indexOf("sin") === 0) zone = "Single";
+    var b = matchFlat[3].toUpperCase();
+    if (b === "1") b = "A";
+    if (b === "2") b = "B";
+    if (b === "3") b = "C";
+    return flatNo + " (" + zone + ") - Bed " + b;
+  }
+  return s;
+}
+
+function getFiscalKeysJS(dateStr) {
+  var d = dateStr ? new Date(dateStr) : new Date();
+  if (isNaN(d.getTime())) d = new Date();
+  var yr = d.getFullYear();
+  var mo = d.getMonth() + 1;
+  var monthKey = yr + "-" + ("0" + mo).slice(-2);
+  var fyStart = (mo >= 4) ? yr : (yr - 1);
+  var fyEnd = (fyStart + 1) % 100;
+  var fyKey = "FY " + fyStart + "-" + ("0" + fyEnd).slice(-2);
+  var q = (mo >= 4 && mo <= 6) ? 1 : (mo >= 7 && mo <= 9) ? 2 : (mo >= 10 && mo <= 12) ? 3 : 4;
+  return {
+    dateStr: d.toISOString().slice(0, 10),
+    monthKey: monthKey,
+    quarterKey: fyKey + " Q" + q,
+    fyKey: fyKey
+  };
+}
+
+function fileToBase64(file) {
+  return new Promise(function(resolve, reject) {
+    if (!file) return resolve(null);
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      resolve({ base64: e.target.result.split(",")[1], type: file.type, name: file.name });
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+var SCRIPT_URL = localStorage.getItem("shantikunj_apps_script_url") || "";
+var SHEET_URL = localStorage.getItem("shantikunj_sheet_url") || "";
+
+window.updateSyncUI = function() {
+  var dot = document.getElementById("syncDot");
+  var txt = document.getElementById("syncText");
+  if (SCRIPT_URL && SCRIPT_URL.indexOf("https://script.google.com") === 0) {
+    dot.className = "dot live";
+    txt.textContent = "Shantikunj Cloud Sync: Ready";
+  } else {
+    dot.className = "dot";
+    txt.textContent = "Shantikunj Cloud Sync: Not Configured";
+  }
+};
+
+window.setDriveUrl = function() {
+  var input = prompt("Enter Shantikunj Google Apps Script Web App URL:", SCRIPT_URL);
+  if (input !== null) {
+    SCRIPT_URL = input.trim();
+    localStorage.setItem("shantikunj_apps_script_url", SCRIPT_URL);
+    window.updateSyncUI();
+    window.fetchFromCloud();
+  }
+};
+
+window.openGoogleSheet = function() {
+  if (!SHEET_URL) {
+    var url = prompt("Paste your Shantikunj Google Sheet link:");
+    if (url) {
+      SHEET_URL = url.trim();
+      localStorage.setItem("shantikunj_sheet_url", SHEET_URL);
+      window.open(SHEET_URL, "_blank");
+    }
+  } else {
+    window.open(SHEET_URL, "_blank");
+  }
+};
+
+window.fetchFromCloud = async function() {
+  if (!SCRIPT_URL) return;
+  var txt = document.getElementById("syncText");
+  txt.textContent = "Syncing Shantikunj Cloud...";
+  try {
+    var res = await fetch(SCRIPT_URL + "?t=" + Date.now());
+    var json = await res.json();
+    if (json && json.status === "success") {
+      if (Array.isArray(json.data)) DB = json.data;
+      if (Array.isArray(json.ledger)) LEDGER = json.ledger;
+      if (Array.isArray(json.expenses)) EXPENSES = json.expenses;
+      window.saveLocal();
+    }
+  } catch (err) {
+    console.error("Sync error:", err);
+  } finally {
+    window.updateSyncUI();
+    window.render();
+  }
+};
+
+window.pushCloudAction = async function(payload) {
+  if (!SCRIPT_URL) return;
+  try {
+    await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+  } catch (e) { console.warn("Cloud push warning:", e); }
+};
+
+window.switchTab = function(tab) {
+  var tabs = ['map', 'roster', 'fin', 'opex', 'logs', 'admit', 'past'];
+  var ids = { map: 'viewMap', roster: 'viewRoster', fin: 'viewFin', opex: 'viewOpex', logs: 'viewLogs', admit: 'viewAdmit', past: 'viewPast' };
+  var btns = { map: 'tabMap', roster: 'tabRoster', fin: 'tabFin', opex: 'tabOpex', logs: 'tabLogs', admit: 'tabAdmit', past: 'tabPast' };
+
+  tabs.forEach(function(t) {
+    document.getElementById(ids[t]).style.display = (t === tab) ? 'block' : 'none';
+    document.getElementById(btns[t]).className = 'tab-btn' + (t === tab ? ' active' : '');
+  });
+
+  if (tab === 'map') window.renderFloorMap();
+  if (tab === 'fin') window.renderFinancials();
+  if (tab === 'opex') window.renderExpenseLogs();
+  if (tab === 'logs') window.renderPaymentLogs();
+  if (tab === 'admit') {
+    document.getElementById("inDate").value = new Date().toISOString().slice(0, 10);
+    window.populateRoomDropdown("inRoomSelect");
+  }
+};
+
+window.saveLocal = function() {
+  localStorage.setItem("shantikunj_pms_data", JSON.stringify(DB));
+  localStorage.setItem("shantikunj_pms_ledger", JSON.stringify(LEDGER));
+  localStorage.setItem("shantikunj_pms_expenses", JSON.stringify(EXPENSES));
+  window.render();
+};
+
+window.populateRoomDropdown = function(selectId, selectedSlot) {
+  var select = document.getElementById(selectId || "inRoomSelect");
+  if (!select) return;
+  select.innerHTML = "";
+  HOSTEL_STRUCTURE.forEach(function(floor) {
+    var optGroup = document.createElement("optgroup");
+    optGroup.label = floor.floor;
+    floor.rooms.forEach(function(room) {
+      for (var b = 0; b < room.cap; b++) {
+        var slotName = room.no + " - Bed " + BED_LETTERS[b];
+        var isOccupied = DB.some(function(x) {
+          return (x.status === "Active" || x.status === "Notice" || x.status === "Booked") && normalizeBedKey(x.room) === slotName && normalizeBedKey(x.room) !== selectedSlot;
+        });
+        var opt = document.createElement("option");
+        opt.value = slotName;
+        opt.textContent = slotName + (isOccupied ? " [Occupied]" : " [Available]");
+        if (isOccupied) opt.disabled = true;
+        if (selectedSlot && selectedSlot === slotName) opt.selected = true;
+        optGroup.appendChild(opt);
+      }
+    });
+    select.appendChild(optGroup);
+  });
+};
+
+window.admitToSlot = function(slot) {
+  window.switchTab('admit');
+  window.populateRoomDropdown("inRoomSelect", slot);
+};
+
+window.sendWhatsAppMsg = function(phone, type, name, room, amount, extraDate) {
+  var cleanPhone = String(phone || '').replace(/\D/g, '');
+  if (cleanPhone.length === 10) cleanPhone = "91" + cleanPhone;
+  var msg = "";
+  if (type === "DUE") {
+    msg = "Hello *" + name + "* (" + room + "),\n\nThis is a reminder from *Shantikunj Hostel*. Your hostel rent of *₹" + amount + "* is currently due.\n\nPlease make the payment and upload your screenshot on the portal:\nhttps://dataseute-art.github.io/shantikunj-pay/";
+  } else if (type === "RECEIPT") {
+    msg = "✅ *Shantikunj Hostel - Official Rent Receipt*\n\nTenant: *" + name + "*\nBed Slot: *" + room + "*\nAmount Received: *₹" + amount + "*\nDate: *" + (extraDate || new Date().toISOString().slice(0, 10)) + "*\n\nThank you for your timely payment!";
+  }
+  window.open("https://wa.me/" + cleanPhone + "?text=" + encodeURIComponent(msg), "_blank");
+};
+
+window.renderFloorMap = function() {
+  var container = document.getElementById("floorMapContainer");
+  if (!container) return;
+  container.innerHTML = "";
+
+  HOSTEL_STRUCTURE.forEach(function(fl) {
+    var flHeader = document.createElement("div");
+    flHeader.className = "floor-title";
+    flHeader.textContent = fl.floor;
+    container.appendChild(flHeader);
+
+    var grid = document.createElement("div");
+    grid.className = "floor-grid";
+
+    fl.rooms.forEach(function(rm) {
+      var roomCard = document.createElement("div");
+      roomCard.className = "room-card";
+
+      var occupiedInRoom = [];
+      for (var b = 0; b < rm.cap; b++) {
+        var letter = BED_LETTERS[b];
+        var slotId = rm.no + " - Bed " + letter;
+        var occ = DB.find(function(x) {
+          return x && (x.status === "Active" || x.status === "Notice" || x.status === "Booked") && normalizeBedKey(x.room) === slotId;
+        });
+        occupiedInRoom.push({ bedLetter: letter, slotId: slotId, student: occ });
+      }
+
+      var occCount = occupiedInRoom.filter(function(x) { return !!x.student; }).length;
+      var isFull = occCount === rm.cap;
+
+      var headerHtml = '<div class="room-header">' +
+        '<span class="room-num">' + rm.label + ' <small style="font-weight:500;color:var(--mute)">(' + rm.type + ')</small></span>' +
+        '<span class="room-cap ' + (isFull ? 'full' : 'vacant') + '">' +
+          (isFull ? 'Full (' + occCount + '/' + rm.cap + ')' : (rm.cap - occCount) + ' Free (' + occCount + '/' + rm.cap + ')') +
+        '</span></div>';
+
+      var bedsHtml = '<div class="bed-slots">';
+      occupiedInRoom.forEach(function(item) {
+        if (item.student) {
+          var s = item.student;
+          var slotClass = "bed-slot occupied";
+          if (s.status === "Notice") slotClass = "bed-slot notice";
+          if (s.status === "Booked") slotClass = "bed-slot booked";
+
+          var rightBadges = "";
+          if (s.status === "Notice") {
+            rightBadges += '<span class="badge badge-notice">⏳ Exit: ' + (s.vacateDate ? s.vacateDate.slice(5) : 'Set') + '</span> ';
+          } else if (s.status === "Booked") {
+            rightBadges += '<span class="badge badge-booked">🔒 Booked</span> ';
+          }
+
+          if (s.due > 0 && s.due < s.rent) {
+            rightBadges += '<span class="badge badge-partial">Partial ₹' + s.due + '</span>';
+          } else if (s.due > 0) {
+            rightBadges += '<span class="badge badge-due">Due ₹' + s.due + '</span>';
+          } else {
+            rightBadges += '<span class="badge badge-clear">Paid</span>';
+          }
+
+          bedsHtml += '<div class="' + slotClass + '" onclick="window.viewHistory(' + s.id + ')">' +
+            '<div><b>Bed ' + item.bedLetter + ':</b> ' + s.name + '</div>' +
+            '<div style="display:flex;gap:4px;align-items:center">' + rightBadges + '</div></div>';
+        } else {
+          bedsHtml += '<div class="bed-slot empty" onclick="window.admitToSlot(\'' + item.slotId + '\')">' +
+            '<span>Bed ' + item.bedLetter + ': Empty</span>' +
+            '<span style="font-size:12px;font-weight:700;color:var(--green)">+ Admit</span></div>';
+        }
+      });
+      bedsHtml += '</div>';
+      roomCard.innerHTML = headerHtml + bedsHtml;
+      grid.appendChild(roomCard);
+    });
+    container.appendChild(grid);
+  });
+};
+
+window.renderFinancials = function() {
+  var nowKeys = getFiscalKeysJS(new Date().toISOString().slice(0, 10));
+  var mtdRent = 0, mtdOpex = 0, ytdRent = 0, ytdOpex = 0, totalDeposits = 0;
+
+  var monthMap = {};
+  var quarterMap = {
+    "Q1": { label: nowKeys.fyKey + " Q1", period: "Apr – Jun", rent: 0, opex: 0, dep: 0 },
+    "Q2": { label: nowKeys.fyKey + " Q2", period: "Jul – Sep", rent: 0, opex: 0, dep: 0 },
+    "Q3": { label: nowKeys.fyKey + " Q3", period: "Oct – Dec", rent: 0, opex: 0, dep: 0 },
+    "Q4": { label: nowKeys.fyKey + " Q4", period: "Jan – Mar", rent: 0, opex: 0, dep: 0 }
+  };
+
+  var activeExpectedMonthly = 0;
+  DB.forEach(function(t) {
+    if (t && (t.status === "Active" || t.status === "Notice")) {
+      activeExpectedMonthly += (Number(t.rent) || 0);
+      totalDeposits += (Number(t.deposit) || 0);
+    }
+  });
+
+  LEDGER.forEach(function(item) {
+    var amt = Number(item.amount) || 0;
+    var cat = String(item.category || "RENT").toUpperCase();
+    var fk = getFiscalKeysJS(item.date);
+    var mKey = item.monthKey || fk.monthKey;
+    var qKey = item.quarterKey || fk.quarterKey;
+    var fyKey = item.fyKey || fk.fyKey;
+
+    if (!monthMap[mKey]) monthMap[mKey] = { rent: 0, opex: 0, dep: 0 };
+
+    if (cat === "RENT" || cat === "FORFEITED_DEPOSIT") {
+      monthMap[mKey].rent += amt;
+      if (mKey === nowKeys.monthKey) mtdRent += amt;
+      if (fyKey === nowKeys.fyKey) {
+        ytdRent += amt;
+        var qNum = qKey.split(" ").pop();
+        if (quarterMap[qNum]) quarterMap[qNum].rent += amt;
+      }
+    } else if (cat === "DEPOSIT") {
+      monthMap[mKey].dep += amt;
+      if (fyKey === nowKeys.fyKey) {
+        var qNum2 = qKey.split(" ").pop();
+        if (quarterMap[qNum2]) quarterMap[qNum2].dep += amt;
+      }
+    }
+  });
+
+  EXPENSES.forEach(function(ex) {
+    var amt = Number(ex.amount) || 0;
+    var fk = getFiscalKeysJS(ex.date);
+    var mKey = ex.monthKey || fk.monthKey;
+    var qKey = ex.quarterKey || fk.quarterKey;
+    var fyKey = ex.fyKey || fk.fyKey;
+
+    if (!monthMap[mKey]) monthMap[mKey] = { rent: 0, opex: 0, dep: 0 };
+    monthMap[mKey].opex += amt;
+
+    if (mKey === nowKeys.monthKey) mtdOpex += amt;
+    if (fyKey === nowKeys.fyKey) {
+      ytdOpex += amt;
+      var qNum = qKey.split(" ").pop();
+      if (quarterMap[qNum]) quarterMap[qNum].opex += amt;
+    }
+  });
+
+  if (!monthMap[nowKeys.monthKey]) monthMap[nowKeys.monthKey] = { rent: 0, opex: 0, dep: 0 };
+
+  var mtdNet = mtdRent - mtdOpex;
+  var ytdNet = ytdRent - ytdOpex;
+
+  document.getElementById("finMTD").textContent = "₹" + mtdRent.toLocaleString("en-IN");
+  document.getElementById("finMTDLabel").textContent = "Month: " + nowKeys.monthKey;
+  document.getElementById("finMTDOpex").textContent = "₹" + mtdOpex.toLocaleString("en-IN");
+  document.getElementById("finMTDNet").textContent = "₹" + mtdNet.toLocaleString("en-IN");
+  document.getElementById("finYTD").textContent = "₹" + ytdNet.toLocaleString("en-IN");
+  document.getElementById("finYTDLabel").textContent = nowKeys.fyKey + " Net";
+  document.getElementById("finDeposits").textContent = "₹" + totalDeposits.toLocaleString("en-IN");
+
+  var qBody = document.getElementById("quarterTableBody");
+  qBody.innerHTML = "";
+  ["Q1", "Q2", "Q3", "Q4"].forEach(function(qCode) {
+    var qObj = quarterMap[qCode];
+    var isCurrent = (qObj.label === nowKeys.quarterKey);
+    var qNet = qObj.rent - qObj.opex;
+    var tr = document.createElement("tr");
+    if (isCurrent) tr.style.background = "#e0f2fe";
+    tr.innerHTML = 
+      '<td><b>' + qObj.label + (isCurrent ? ' (Active)' : '') + '</b></td>' +
+      '<td>' + qObj.period + '</td>' +
+      '<td style="color:var(--green);font-weight:700">₹' + qObj.rent.toLocaleString("en-IN") + '</td>' +
+      '<td style="color:var(--warn);font-weight:600">₹' + qObj.opex.toLocaleString("en-IN") + '</td>' +
+      '<td style="color:var(--acc);font-weight:800">₹' + qNet.toLocaleString("en-IN") + '</td>' +
+      '<td style="color:var(--purple)">₹' + qObj.dep.toLocaleString("en-IN") + '</td>';
+    qBody.appendChild(tr);
+  });
+
+  var mBody = document.getElementById("monthTableBody");
+  mBody.innerHTML = "";
+  Object.keys(monthMap).sort().reverse().forEach(function(mKey) {
+    var mObj = monthMap[mKey];
+    var net = mObj.rent - mObj.opex;
+    var eff = activeExpectedMonthly > 0 ? Math.min(100, Math.round((mObj.rent / activeExpectedMonthly) * 100)) : 0;
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td><b>' + mKey + '</b></td>' +
+      '<td>₹' + activeExpectedMonthly.toLocaleString("en-IN") + '</td>' +
+      '<td style="color:var(--green);font-weight:700">₹' + mObj.rent.toLocaleString("en-IN") + '</td>' +
+      '<td style="color:var(--warn);font-weight:600">₹' + mObj.opex.toLocaleString("en-IN") + '</td>' +
+      '<td style="color:var(--acc);font-weight:800">₹' + net.toLocaleString("en-IN") + '</td>' +
+      '<td><span class="badge ' + (eff >= 80 ? 'badge-clear' : 'badge-due') + '">' + eff + '%</span></td>';
+    mBody.appendChild(tr);
+  });
+
+  return { mtdRent: mtdRent, mtdNet: mtdNet };
+};
+
+window.renderExpenseLogs = function() {
+  var tbody = document.getElementById("expenseLogBody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  var sorted = EXPENSES.slice().sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+  if (sorted.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--mute);text-align:center;padding:16px">No OPEX expenses logged yet. Click "💸 + Add OPEX Bill" to record bills.</td></tr>';
+    return;
+  }
+
+  sorted.forEach(function(ex) {
+    var billHtml = ex.billUrl ? '<a href="' + ex.billUrl + '" target="_blank" class="btn btn-ghost btn-sm">📄 View Bill</a>' : '<span style="color:var(--mute)">No file</span>';
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td>' + ex.date + '</td>' +
+      '<td><span class="badge badge-notice">' + ex.category + '</span></td>' +
+      '<td><b>' + (ex.desc || '-') + '</b></td>' +
+      '<td>' + (ex.mode || 'UPI') + '</td>' +
+      '<td style="color:var(--warn);font-weight:800">₹' + Number(ex.amount).toLocaleString("en-IN") + '</td>' +
+      '<td>' + billHtml + '</td>';
+    tbody.appendChild(tr);
+  });
+};
+
+window.renderPaymentLogs = function() {
+  var tbody = document.getElementById("paymentLogBody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  var sorted = LEDGER.slice().sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+  if (sorted.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--mute);text-align:center;padding:16px">No transactions logged yet.</td></tr>';
+    return;
+  }
+
+  sorted.forEach(function(log) {
+    var isDep = String(log.category).indexOf("DEPOSIT") !== -1;
+    var tenantObj = DB.find(function(x) { return x.name === log.name; });
+    var phone = tenantObj ? tenantObj.phone : "";
+    var waBtn = phone ? '<button class="btn btn-ghost btn-sm" onclick="window.sendWhatsAppMsg(\'' + phone + '\', \'RECEIPT\', \'' + log.name.replace(/'/g, "") + '\', \'' + log.room + '\', ' + log.amount + ', \'' + log.date + '\')">📲 WhatsApp Receipt</button>' : '';
+    var proofHtml = (log.proofUrl ? '<a href="' + log.proofUrl + '" target="_blank" class="btn btn-ghost btn-sm">📸 Proof</a> ' : '') + waBtn;
+
+    var tr = document.createElement("tr");
+    tr.innerHTML = 
+      '<td>' + log.date + '</td>' +
+      '<td style="color:var(--acc);font-weight:700">' + log.room + '</td>' +
+      '<td><b>' + log.name + '</b></td>' +
+      '<td><span class="badge ' + (isDep ? 'badge-booked' : 'badge-clear') + '">' + log.category + '</span></td>' +
+      '<td><b>₹' + Number(log.amount).toLocaleString("en-IN") + '</b></td>' +
+      '<td>' + proofHtml + '</td>';
+    tbody.appendChild(tr);
+  });
+};
+
+window.openExpenseModal = function() {
+  document.getElementById("expDate").value = new Date().toISOString().slice(0, 10);
+  document.getElementById("expAmount").value = "";
+  document.getElementById("expDesc").value = "";
+  document.getElementById("expBillFile").value = "";
+  document.getElementById("expenseModal").style.display = "flex";
+};
+
+window.selectOpexCategory = function(cat, el) {
+  document.getElementById("expCategory").value = cat;
+  var chips = document.querySelectorAll("#opexChips .chip");
+  chips.forEach(function(c) { c.className = "chip"; });
+  el.className = "chip active";
+};
+
+window.submitExpense = async function() {
+  var cat = document.getElementById("expCategory").value;
+  var dateStr = document.getElementById("expDate").value || new Date().toISOString().slice(0, 10);
+  var amt = parseFloat(document.getElementById("expAmount").value) || 0;
+  var desc = document.getElementById("expDesc").value.trim() || cat;
+  var mode = document.getElementById("expMode").value;
+  var file = document.getElementById("expBillFile").files[0];
+
+  if (amt <= 0) { alert("Please enter a valid expense amount."); return; }
+
+  var btn = document.getElementById("btnSaveExp");
+  btn.disabled = true;
+  btn.textContent = "⏳ Uploading Bill & Saving...";
+
+  try {
+    var billObj = file ? await fileToBase64(file) : null;
+    var fk = getFiscalKeysJS(dateStr);
+
+    var newExp = {
+      expId: "EXP-" + Date.now(), date: fk.dateStr, monthKey: fk.monthKey, quarterKey: fk.quarterKey, fyKey: fk.fyKey,
+      category: cat, desc: desc, mode: mode, amount: amt, billUrl: ""
+    };
+
+    if (SCRIPT_URL) {
+      var res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "ADMIN_ADD_EXPENSE", category: cat, desc: desc, mode: mode, amount: amt, date: fk.dateStr, billFile: billObj
+        })
+      });
+      var j = await res.json();
+      if (j && j.billUrl) newExp.billUrl = j.billUrl;
+    }
+
+    EXPENSES.push(newExp);
+    window.saveLocal();
+    document.getElementById("expenseModal").style.display = "none";
+    alert("✅ OPEX Expense of ₹" + amt + " saved!");
+  } catch (e) {
+    alert("Saved locally.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Save Expense to Google Sheet";
+  }
+};
+
+window.openVacateModal = function(id) {
+  var t = DB.find(function(x) { return Number(x.id) === Number(id); });
+  if (!t) return;
+  document.getElementById("vacStudentId").value = t.id;
+  document.getElementById("vacDateInput").value = t.vacateDate || new Date().toISOString().slice(0, 10);
+  document.getElementById("vacDepHeld").value = t.deposit || 0;
+  document.getElementById("vacDeduction").value = t.due || 0;
+  document.getElementById("vacActionMode").value = (t.status === "Notice") ? "Vacated" : "Notice";
+  window.toggleVacateSettlementUI();
+  window.calcRefundPreview();
+  document.getElementById("vacateModal").style.display = "flex";
+};
+
+window.toggleVacateSettlementUI = function() {
+  var mode = document.getElementById("vacActionMode").value;
+  document.getElementById("settlementFields").style.display = (mode === "Vacated") ? "block" : "none";
+};
+
+window.calcRefundPreview = function() {
+  var held = parseFloat(document.getElementById("vacDepHeld").value) || 0;
+  var ded = parseFloat(document.getElementById("vacDeduction").value) || 0;
+  document.getElementById("vacRefundAmt").value = Math.max(0, held - ded);
+};
+
+window.confirmVacateOrNotice = async function() {
+  var id = Number(document.getElementById("vacStudentId").value);
+  var t = DB.find(function(x) { return Number(x.id) === id; });
+  if (!t) return;
+
+  var mode = document.getElementById("vacActionMode").value;
+  var vacDate = document.getElementById("vacDateInput").value;
+  if (!vacDate) { alert("Please select the Date of Vacating."); return; }
+
+  t.vacateDate = vacDate;
+  var forfeited = 0;
+  var refunded = 0;
+
+  if (mode === "Notice") {
+    t.status = "Notice";
+  } else {
+    t.status = "Vacated";
+    var held = Number(t.deposit) || 0;
+    var ded = parseFloat(document.getElementById("vacDeduction").value) || 0;
+    forfeited = Math.min(held, ded);
+    refunded = Math.max(0, held - forfeited);
+    t.deposit = 0;
+    t.due = 0;
+
+    var fk = getFiscalKeysJS(vacDate);
+    if (forfeited > 0) {
+      LEDGER.push({ txnId: "TXN-" + Date.now(), date: fk.dateStr, monthKey: fk.monthKey, quarterKey: fk.quarterKey, fyKey: fk.fyKey, room: t.room, name: t.name, category: "FORFEITED_DEPOSIT", amount: forfeited, notes: "Deposit Deduction on Exit" });
+    }
+    if (refunded > 0) {
+      LEDGER.push({ txnId: "TXN-" + (Date.now() + 1), date: fk.dateStr, monthKey: fk.monthKey, quarterKey: fk.quarterKey, fyKey: fk.fyKey, room: t.room, name: t.name, category: "DEPOSIT_REFUND", amount: refunded, notes: "Deposit Refunded on Exit" });
+    }
+  }
+
+  window.saveLocal();
+  document.getElementById("vacateModal").style.display = "none";
+  window.closeModal();
+
+  await window.pushCloudAction({
+    action: "ADMIN_UPDATE_TENANT",
+    id: t.id, room: t.room, name: t.name, phone: t.phone,
+    rent: t.rent, deposit: t.deposit, joinDate: t.joinDate, due: t.due,
+    status: t.status, email: t.email, vacateDate: t.vacateDate,
+    forfeitedDeposit: forfeited, refundedDeposit: refunded
+  });
+
+  alert(mode === "Notice" ? "⏳ Bed marked as On Notice (Amber) with Exit Date: " + vacDate : "🚪 Tenant moved to Archives and Bed freed up!");
+};
+
+window.openRecordPaymentModal = function(preselectId) {
+  var sel = document.getElementById("payModalTenant");
+  sel.innerHTML = "";
+  DB.filter(function(t) { return t && (t.status === "Active" || t.status === "Notice" || t.status === "Booked"); }).forEach(function(t) {
+    var opt = document.createElement("option");
+    opt.value = t.id;
+    opt.textContent = t.room + " - " + t.name + " (Due: ₹" + (t.due || 0) + ")";
+    if (preselectId && Number(preselectId) === Number(t.id)) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  document.getElementById("payModalDate").value = new Date().toISOString().slice(0, 10);
+  window.syncPayModalTenant();
+  document.getElementById("payModal").style.display = "flex";
+};
+
+window.syncPayModalTenant = function() {
+  var id = Number(document.getElementById("payModalTenant").value);
+  var t = DB.find(function(x) { return Number(x.id) === id; });
+  if (t) document.getElementById("payModalAmt").value = t.due > 0 ? t.due : t.rent;
+};
+
+window.submitManualPayment = async function() {
+  var id = Number(document.getElementById("payModalTenant").value);
+  var t = DB.find(function(x) { return Number(x.id) === id; });
+  if (!t) return;
+
+  var dateStr = document.getElementById("payModalDate").value || new Date().toISOString().slice(0, 10);
+  var cat = document.getElementById("payModalCat").value;
+  var amt = parseFloat(document.getElementById("payModalAmt").value) || 0;
+  var notes = document.getElementById("payModalNotes").value.trim() || "Recorded by Owner";
+
+  if (amt <= 0) { alert("Enter a valid amount."); return; }
+
+  var fk = getFiscalKeysJS(dateStr);
+  LEDGER.push({
+    txnId: "TXN-" + Date.now(), date: fk.dateStr, monthKey: fk.monthKey, quarterKey: fk.quarterKey, fyKey: fk.fyKey,
+    room: t.room, name: t.name, category: cat, amount: amt, proofUrl: "", notes: notes
+  });
+
+  if (cat === "RENT") {
+    t.due = Math.max(0, (Number(t.due) || 0) - amt);
+  } else if (cat === "DEPOSIT") {
+    t.deposit = (Number(t.deposit) || 0) + amt;
+  }
+
+  window.saveLocal();
+  document.getElementById("payModal").style.display = "none";
+  window.closeModal();
+
+  await window.pushCloudAction({
+    action: "ADMIN_RECORD_PAYMENT",
+    id: t.id, room: t.room, name: t.name, category: cat, amount: amt, date: fk.dateStr, notes: notes
+  });
+  alert("✅ ₹" + amt + " recorded!");
+};
+
+window.billNextMonth = async function(id) {
+  var t = DB.find(function(x) { return Number(x.id) === Number(id); });
+  if (!t) return;
+  t.due = (Number(t.due) || 0) + (Number(t.rent) || 0);
+  window.saveLocal();
+  window.closeModal();
+  await window.pushCloudAction({
+    action: "ADMIN_UPDATE_TENANT",
+    id: t.id, room: t.room, name: t.name, phone: t.phone,
+    rent: t.rent, deposit: t.deposit, joinDate: t.joinDate, due: t.due, status: t.status, email: t.email, vacateDate: t.vacateDate
+  });
+  alert("Added ₹" + t.rent + " to " + t.name + "'s due.");
+};
+
+window.openEditModal = function(id) {
+  var t = DB.find(function(x) { return Number(x.id) === Number(id); });
+  if (!t) return;
+  document.getElementById("editStudentId").value = t.id;
+  document.getElementById("editName").value = t.name || "";
+  document.getElementById("editPhone").value = t.phone || "";
+  document.getElementById("editRent").value = t.rent || 0;
+  document.getElementById("editDue").value = t.due || 0;
+  document.getElementById("editDeposit").value = t.deposit || 0;
+  document.getElementById("editJoinDate").value = t.joinDate || "";
+  document.getElementById("editStatus").value = t.status || "Active";
+  document.getElementById("editEmail").value = t.email || "";
+  document.getElementById("editVacateDate").value = t.vacateDate || "";
+  window.populateRoomDropdown("editRoomSelect", normalizeBedKey(t.room));
+  document.getElementById("editModal").style.display = "flex";
+};
+
+window.closeEditModal = function() {
+  document.getElementById("editModal").style.display = "none";
+};
+
+window.saveEditedProfile = async function() {
+  var id = Number(document.getElementById("editStudentId").value);
+  var t = DB.find(function(x) { return Number(x.id) === id; });
+  if (!t) return;
+
+  t.name = document.getElementById("editName").value.trim();
+  t.phone = document.getElementById("editPhone").value.trim();
+  t.rent = parseFloat(document.getElementById("editRent").value) || 0;
+  t.due = parseFloat(document.getElementById("editDue").value) || 0;
+  t.deposit = parseFloat(document.getElementById("editDeposit").value) || 0;
+  t.joinDate = document.getElementById("editJoinDate").value;
+  t.room = normalizeBedKey(document.getElementById("editRoomSelect").value);
+  t.status = document.getElementById("editStatus").value;
+  t.email = document.getElementById("editEmail").value.trim();
+  t.vacateDate = document.getElementById("editVacateDate").value;
+
+  window.saveLocal();
+  window.closeEditModal();
+  window.closeModal();
+
+  await window.pushCloudAction({
+    action: "ADMIN_UPDATE_TENANT",
+    id: t.id, room: t.room, name: t.name, phone: t.phone,
+    rent: t.rent, deposit: t.deposit, joinDate: t.joinDate, due: t.due, status: t.status, email: t.email, vacateDate: t.vacateDate
+  });
+  alert("✅ Profile & Bed Allocation updated!");
+};
+
+window.viewHistory = function(id) {
+  var t = DB.find(function(x) { return Number(x.id) === Number(id); });
+  if (!t) return;
+
+  document.getElementById("modalStudentName").textContent = t.name + " (" + t.room + ")";
+  var kycButtons = "";
+  if (t.aadhaarLink) kycButtons += '<a href="' + t.aadhaarLink + '" target="_blank" class="btn btn-ghost btn-sm">📄 Aadhaar</a> ';
+  if (t.panLink) kycButtons += '<a href="' + t.panLink + '" target="_blank" class="btn btn-ghost btn-sm">💳 PAN</a> ';
+  if (t.orgIdLink) kycButtons += '<a href="' + t.orgIdLink + '" target="_blank" class="btn btn-ghost btn-sm">🎓 ID Card</a>';
+
+  var vacLine = t.vacateDate ? '<br><b style="color:var(--amber)">⏳ Scheduled Vacating Date:</b> ' + t.vacateDate : '';
+
+  var html = '<div style="background:var(--panel);padding:14px;border-radius:12px;font-size:13px;line-height:1.7">' +
+    '<b>Status:</b> ' + t.status + ' | <b>Joined:</b> ' + (t.joinDate || 'N/A') + vacLine + '<br>' +
+    '<b>Phone:</b> ' + t.phone + ' | <b>Parent:</b> ' + (t.parent || 'N/A') + '<br>' +
+    '<b>Email:</b> ' + (t.email || 'Not saved') + '<br>' +
+    '<b>Agreed Rent:</b> ₹' + t.rent + '/mo | <b>Deposit Held:</b> ₹' + (t.deposit || 0) + '<br>' +
+    '<b>Current Pending Due:</b> <span style="color:' + (t.due > 0 ? 'var(--warn)' : 'var(--green)') + ';font-weight:800">₹' + (t.due || 0) + '</span><br><br>' +
+    '<b>KYC Documents:</b> ' + (kycButtons || 'None') +
+    '</div>' +
+    '<div style="margin-top:14px;display:flex;gap:7px;flex-wrap:wrap">' +
+      '<button class="btn btn-green btn-sm" onclick="window.openRecordPaymentModal(' + t.id + ')">💰 Collect Rent</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="window.sendWhatsAppMsg(\'' + t.phone + '\', \'DUE\', \'' + t.name.replace(/'/g, "") + '\', \'' + t.room + '\', ' + (t.due || t.rent) + ')">📲 WhatsApp Reminder</button>' +
+      '<button class="btn btn-primary btn-sm" onclick="window.billNextMonth(' + t.id + ')">+ Bill Month</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="window.openEditModal(' + t.id + ')">✏️ Edit / Swap Bed</button>' +
+      '<button class="btn btn-amber btn-sm" onclick="window.openVacateModal(' + t.id + ')">🚪 Vacate / Notice Date</button>' +
+    '</div>';
+
+  document.getElementById("modalContent").innerHTML = html;
+  document.getElementById("historyModal").style.display = "flex";
+};
+
+window.closeModal = function() {
+  document.getElementById("historyModal").style.display = "none";
+};
+
+window.admitStudent = async function() {
+  var room = document.getElementById("inRoomSelect").value;
+  var statusType = document.getElementById("inStatusType").value;
+  var name = document.getElementById("inName").value.trim();
+  var phone = document.getElementById("inPhone").value.trim();
+  var parent = document.getElementById("inParent").value.trim();
+  var rent = parseFloat(document.getElementById("inRent").value) || 0;
+  var deposit = parseFloat(document.getElementById("inDeposit").value) || 0;
+  var joinDate = document.getElementById("inDate").value || new Date().toISOString().slice(0, 10);
+  var email = document.getElementById("inEmail").value.trim();
+  var firstPaid = document.getElementById("inFirstRentPaid").value === "yes";
+
+  if (!room || !name) { alert("Select Bed and enter Student Name."); return; }
+
+  var newId = Date.now();
+  var initialDue = firstPaid ? 0 : rent;
+  var cleanRoom = normalizeBedKey(room);
+
+  var newStudent = {
+    id: newId, room: cleanRoom, name: name, phone: phone, parent: parent,
+    rent: rent, deposit: deposit, joinDate: joinDate, due: initialDue, status: statusType, email: email, vacateDate: ""
+  };
+  DB.push(newStudent);
+
+  var fk = getFiscalKeysJS(joinDate);
+  if (deposit > 0) {
+    LEDGER.push({ txnId: "TXN-" + Date.now(), date: fk.dateStr, monthKey: fk.monthKey, quarterKey: fk.quarterKey, fyKey: fk.fyKey, room: cleanRoom, name: name, category: "DEPOSIT", amount: deposit, notes: "Onboarding Deposit" });
+  }
+  if (firstPaid && rent > 0) {
+    LEDGER.push({ txnId: "TXN-" + (Date.now() + 1), date: fk.dateStr, monthKey: fk.monthKey, quarterKey: fk.quarterKey, fyKey: fk.fyKey, room: cleanRoom, name: name, category: "RENT", amount: rent, notes: "First Month Rent" });
+  }
+
+  window.saveLocal();
+  await window.pushCloudAction({
+    action: "ADMIN_UPDATE_TENANT",
+    id: newId, room: cleanRoom, name: name, phone: phone, parent: parent,
+    rent: rent, deposit: deposit, joinDate: joinDate, due: initialDue, status: statusType, email: email, vacateDate: ""
+  });
+  if (firstPaid && rent > 0) {
+    await window.pushCloudAction({
+      action: "ADMIN_RECORD_PAYMENT",
+      id: newId, room: cleanRoom, name: name, category: "RENT", amount: rent, date: fk.dateStr, notes: "First Month Rent"
+    });
+  }
+
+  alert("✅ Saved " + name + " in " + cleanRoom);
+  window.switchTab('map');
+};
+
+window.exportFinancialCSV = function() {
+  var csv = "Type,ID,Date,Month,Quarter,Financial Year,Slot_Or_Mode,Name_Or_Vendor,Category,Amount,Notes_Or_Link\n";
+  LEDGER.forEach(function(r) {
+    csv += 'INCOME,"' + (r.txnId || '') + '","' + r.date + '","' + r.monthKey + '","' + r.quarterKey + '","' + r.fyKey + '","' + r.room + '","' + r.name + '","' + r.category + '",' + r.amount + ',"' + (r.notes || '') + '"\n';
+  });
+  EXPENSES.forEach(function(e) {
+    csv += 'OPEX,"' + (e.expId || '') + '","' + e.date + '","' + e.monthKey + '","' + e.quarterKey + '","' + e.fyKey + '","' + e.mode + '","' + e.desc + '","' + e.category + '",-' + e.amount + ',"' + (e.billUrl || '') + '"\n';
+  });
+  var blob = new Blob([csv], { type: "text/csv" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "Shantikunj_Hostel_PnL_" + new Date().toISOString().slice(0, 10) + ".csv";
+  a.click();
+};
+
+window.render = function() {
+  var activeList = document.getElementById("rosterList");
+  var pastList = document.getElementById("pastList");
+  if (!activeList || !pastList) return;
+  activeList.innerHTML = "";
+  pastList.innerHTML = "";
+
+  var activeCount = 0;
+  var noticeCount = 0;
+  var totalDues = 0;
+
+  DB.forEach(function(t) {
+    if (!t) return;
+    if (t.status === "Active" || t.status === "Notice" || t.status === "Booked") {
+      activeCount++;
+      if (t.status === "Notice") noticeCount++;
+      totalDues += (Number(t.due) || 0);
+
+      var statusBadge = "";
+      if (t.status === "Notice") statusBadge = '<span class="badge badge-notice">⏳ Vacating: ' + (t.vacateDate || 'Soon') + '</span> ';
+      if (t.status === "Booked") statusBadge = '<span class="badge badge-booked">🔒 Token Booked</span> ';
+
+      var dueBadge = (t.due > 0 && t.due < t.rent)
+        ? '<span class="badge badge-partial">Partial Due ₹' + t.due + '</span>'
+        : '<span class="badge ' + (t.due > 0 ? 'badge-due' : 'badge-clear') + '">' + (t.due > 0 ? 'Due ₹' + t.due : 'Paid') + '</span>';
+
+      var el = document.createElement("div");
+      el.className = "tenant-card";
+      el.innerHTML = 
+        '<div class="tc-head"><span class="tc-name">' + t.name + '</span><span class="tc-room">' + t.room + '</span></div>' +
+        '<div class="tc-body">' +
+          '📱 ' + t.phone + ' | Joined: <b>' + (t.joinDate || 'N/A') + '</b> | Rent: ₹' + t.rent + '/mo<br>' +
+          'Deposit Held: ₹' + (t.deposit || 0) + ' | ' + statusBadge + dueBadge +
+        '</div>' +
+        '<div class="tc-actions">' +
+          '<button class="btn btn-green btn-sm" onclick="window.openRecordPaymentModal(' + t.id + ')">💰 Collect Rent</button>' +
+          '<button class="btn btn-ghost btn-sm" onclick="window.sendWhatsAppMsg(\'' + t.phone + '\', \'DUE\', \'' + t.name.replace(/'/g, "") + '\', \'' + t.room + '\', ' + (t.due || t.rent) + ')">📲 WhatsApp</button>' +
+          '<button class="btn btn-ghost btn-sm" onclick="window.viewHistory(' + t.id + ')">📜 Details &amp; KYC</button>' +
+          '<button class="btn btn-ghost btn-sm" onclick="window.openEditModal(' + t.id + ')">✏️ Swap/Edit</button>' +
+          '<button class="btn btn-amber btn-sm" onclick="window.openVacateModal(' + t.id + ')">🚪 Vacate/Notice</button>' +
+        '</div>';
+      activeList.appendChild(el);
+    } else if (t.status === "Vacated") {
+      var pel = document.createElement("div");
+      pel.className = "tenant-card";
+      pel.innerHTML = '<div class="tc-head"><span class="tc-name">' + t.name + ' (Vacated)</span><span class="tc-room">' + t.room + '</span></div>' +
+        '<div class="tc-body">📱 ' + t.phone + ' | Joined: <b>' + (t.joinDate || 'N/A') + '</b> | Vacated On: <b style="color:var(--warn)">' + (t.vacateDate || 'N/A') + '</b></div>';
+      pastList.appendChild(pel);
+    }
+  });
+
+  var finStats = window.renderFinancials();
+  var TOTAL_BEDS = 36;
+  document.getElementById("stBeds").textContent = activeCount + "/" + TOTAL_BEDS;
+  document.getElementById("stVacant").textContent = (TOTAL_BEDS - activeCount) + (noticeCount > 0 ? " (+" + noticeCount + " Notice)" : "");
+  document.getElementById("stDues").textContent = "₹" + totalDues.toLocaleString("en-IN");
+  document.getElementById("stPaid").textContent = "₹" + finStats.mtdRent.toLocaleString("en-IN");
+  document.getElementById("stNetProfit").textContent = "₹" + finStats.mtdNet.toLocaleString("en-IN");
+
+  window.renderFloorMap();
+  window.renderPaymentLogs();
+  window.renderExpenseLogs();
+};
+
+window.backupJSON = function() {
+  var blob = new Blob([JSON.stringify({ tenants: DB, ledger: LEDGER, expenses: EXPENSES }, null, 2)], { type: "application/json" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "Shantikunj_Hostel_Full_Backup.json";
+  a.click();
+};
+
+window.importJSON = function(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var parsed = JSON.parse(e.target.result);
+      if (Array.isArray(parsed)) { DB = parsed; }
+      else if (parsed.tenants) { DB = parsed.tenants; LEDGER = parsed.ledger || []; EXPENSES = parsed.expenses || []; }
+      window.saveLocal();
+      alert("Restored!");
+    } catch(err) { alert("Invalid file"); }
+  };
+  reader.readAsText(file);
+};
+
+window.updateSyncUI();
+window.render();
+if (SCRIPT_URL) window.fetchFromCloud();
+</script>
+</body>
+</html>
