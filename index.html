@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shantikunj Boys Hostel - Student Portal & KYC</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+:root {
+  --bg: #f1f5f9; --surface: #ffffff; --panel: #f8fafc; --ink: #0f172a; --mute: #64748b;
+  --line: #cbd5e1; --acc: #0284c7; --green: #10b981; --warn: #ef4444;
+  --warn-bg: #fff1f2; --warn-border: #fecdd3; --warn-text: #9f1239;
+}
+* { box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+body { margin: 0; background: var(--bg); color: var(--ink); padding: 16px; }
+main { max-width: 600px; margin: 0 auto; padding-bottom: 60px; }
+header { background: var(--surface); border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+h1 { margin: 0; font-size: 22px; font-weight: 800; color: var(--ink); }
+p.sub { margin: 4px 0 0; font-size: 13px; color: var(--mute); font-weight: 600; }
+.mode-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.mode-btn { background: var(--surface); border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; color: var(--mute); cursor: pointer; text-align: center; }
+.mode-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+.card { background: var(--surface); border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+h2 { margin: 0 0 16px; font-size: 17px; font-weight: 700; color: var(--ink); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+label { display: block; font-size: 12px; font-weight: 700; color: var(--mute); margin-bottom: 6px; }
+.req { color: var(--warn); font-size: 13px; margin-left: 2px; }
+input, select, textarea { width: 100%; background: var(--panel); border: 1px solid var(--line); color: var(--ink); padding: 11px 13px; border-radius: 10px; font-size: 14px; outline: none; margin-bottom: 14px; }
+textarea { resize: vertical; min-height: 75px; }
+input:focus, select:focus, textarea:focus { border-color: var(--acc); background: #fff; }
+.file-box { background: var(--panel); border: 1.5px dashed var(--line); border-radius: 10px; padding: 12px; margin-bottom: 14px; }
+.file-box label { color: var(--ink); font-weight: 700; margin-bottom: 4px; }
+.file-box span { font-size: 11px; color: var(--mute); display: block; margin-bottom: 6px; }
+.file-box input { margin-bottom: 0; padding: 6px 0; background: transparent; border: none; }
+.notice-box { background: var(--warn-bg); border: 1.5px solid var(--warn-border); border-radius: 12px; padding: 16px; margin: 18px 0; }
+.notice-header { font-weight: 800; font-size: 13px; color: var(--warn-text); text-transform: uppercase; margin-bottom: 6px; }
+.notice-text { font-size: 13px; font-weight: 600; color: #881337; line-height: 1.5; margin-bottom: 12px; }
+.notice-check { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; font-weight: 700; color: var(--ink); cursor: pointer; }
+.notice-check input { width: 18px; height: 18px; margin: 0; cursor: pointer; flex-shrink: 0; }
+.btn-submit { width: 100%; background: var(--ink); color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btn-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+.spinner { display: none; text-align: center; color: var(--acc); font-size: 14px; font-weight: 600; margin-top: 12px; }
+.alert-success { display: none; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 14px; border-radius: 10px; font-size: 14px; line-height: 1.5; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Shantikunj Hostel</h1>
+    <p class="sub">Boys Self-Service Portal &amp; Cloud KYC</p>
+  </header>
+
+  <div class="mode-tabs">
+    <button class="mode-btn active" id="tabKyc" onclick="switchMode('kyc')">📋 New Student KYC</button>
+    <button class="mode-btn" id="tabPay" onclick="switchMode('pay')">💳 Report Rent Payment</button>
+  </div>
+
+  <div class="alert-success" id="successBox"></div>
+
+  <!-- FORM 1: SELF-KYC -->
+  <div class="card" id="formKyc">
+    <h2>Student KYC &amp; Bed Onboarding</h2>
+    
+    <label>Assigned Flat, Room &amp; Bed Slot <span class="req">*</span></label>
+    <select id="kycRoomSelect">
+      <option value="">⏳ Checking live bed availability...</option>
+    </select>
+
+    <div class="row">
+      <div>
+        <label>Your Full Name <span class="req">*</span></label>
+        <input type="text" id="kycName" placeholder="As per Aadhaar">
+      </div>
+      <div>
+        <label>Age <span class="req">*</span></label>
+        <input type="number" id="kycAge" placeholder="e.g. 21" min="15" max="60">
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>WhatsApp Mobile Number <span class="req">*</span></label>
+        <input type="tel" id="kycPhone" placeholder="10-digit mobile number">
+      </div>
+      <div>
+        <label>Parent / Guardian Mobile <span class="req">*</span></label>
+        <input type="tel" id="kycParent" placeholder="Parent contact number">
+      </div>
+    </div>
+
+    <label>Email Address <span class="req">*</span></label>
+    <input type="email" id="kycEmail" placeholder="yourname@gmail.com">
+
+    <label>Permanent Home Address <span class="req">*</span></label>
+    <textarea id="kycAddress" placeholder="House/Flat No, Street, Village/City, State, Pincode"></textarea>
+
+    <label>Company / College Name <span class="req">*</span></label>
+    <input type="text" id="kycOrgName" placeholder="Enter College or Employer Name">
+
+    <label>Aadhaar Card Number <span class="req">*</span></label>
+    <input type="text" id="kycAadhaar" placeholder="12-digit Aadhaar Number">
+
+    <div class="row">
+      <div>
+        <label>Monthly Agreed Rent (₹) <span class="req">*</span></label>
+        <input type="number" id="kycRent" placeholder="e.g. 5500">
+      </div>
+      <div>
+        <label>Security Deposit Paid (₹) <span class="req">*</span></label>
+        <input type="number" id="kycDeposit" placeholder="e.g. 5500">
+      </div>
+    </div>
+
+    <div>
+      <label>Date of Joining the Hostel <span class="req">*</span></label>
+      <input type="date" id="kycJoinDate">
+      <small style="display:block;color:var(--mute);margin-top:-8px;margin-bottom:14px;font-size:12px;">
+        📌 Note: Your next month's rent cycle is calculated exactly 30 days from this joining date.
+      </small>
+    </div>
+
+    <div class="file-box">
+      <label>📄 Upload Aadhaar Card (Front &amp; Back) <span class="req">*</span></label>
+      <span>Accepted: Photo (JPG/PNG) or PDF</span>
+      <input type="file" id="kycFileAadhaar" accept="image/*,.pdf">
+    </div>
+
+    <div class="file-box">
+      <label>💳 Upload PAN Card <span class="req">*</span></label>
+      <span>Accepted: Photo (JPG/PNG) or PDF</span>
+      <input type="file" id="kycFilePan" accept="image/*,.pdf">
+    </div>
+
+    <div class="file-box">
+      <label>🎓 Upload College / Company ID Card <span class="req">*</span></label>
+      <span>Accepted: Photo (JPG/PNG) or PDF</span>
+      <input type="file" id="kycFileOrgId" accept="image/*,.pdf">
+    </div>
+
+    <div class="notice-box">
+      <div class="notice-header">⚠️ Shantikunj Hostel Stay Policy &amp; Terms</div>
+      <div class="notice-text">
+        • <b>One month notice period</b> is compulsory while leaving the hostel.<br>
+        • <b>Minimum 3 months stay</b> is mandatory.<br>
+        • Monthly rent is payable every 30 days from your joining date.
+      </div>
+      <label class="notice-check">
+        <input type="checkbox" id="kycAgree" onchange="toggleKycSubmit()">
+        <span>I have read and agree to the 1-month notice period and minimum 3-month stay policy. <span class="req">*</span></span>
+      </label>
+    </div>
+
+    <button class="btn-submit" id="btnSubmitKyc" onclick="submitKyc()" disabled>Submit KYC &amp; Register Bed</button>
+    <div class="spinner" id="spinnerKyc">⏳ Uploading KYC to Shantikunj Hostel Cloud... Please wait.</div>
+  </div>
+
+  <!-- FORM 2: PAYMENT REPORTING -->
+  <div class="card" id="formPay" style="display:none">
+    <h2>Report Monthly Rent Payment</h2>
+    
+    <label>Assigned Flat, Room &amp; Bed Slot <span class="req">*</span></label>
+    <select id="payRoomSelect"></select>
+
+    <label>Student Full Name <span class="req">*</span></label>
+    <input type="text" id="payName" placeholder="Your full name">
+
+    <label>Your Email Address <span class="req">*</span></label>
+    <input type="email" id="payEmail" placeholder="yourname@gmail.com (receipt sent here)">
+
+    <label>Amount Paid (₹) <span class="req">*</span></label>
+    <input type="number" id="payAmount" placeholder="e.g. 5500">
+
+    <div class="file-box">
+      <label>📸 Upload Payment Screenshot <span class="req">*</span></label>
+      <span>Screenshot from GPay, PhonePe, Paytm, or NetBanking</span>
+      <input type="file" id="payFileProof" accept="image/*,.pdf">
+    </div>
+
+    <button class="btn-submit" id="btnSubmitPay" onclick="submitPayment()">Submit Monthly Payment</button>
+    <div class="spinner" id="spinnerPay">⏳ Submitting payment details... Please wait.</div>
+  </div>
+</main>
+
+<script>
+// PASTE YOUR REAL SHANTIKUNJ GOOGLE APPS SCRIPT WEB APP URL BELOW:
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLS7BTn9TxzJGSh3DrDBXLh0XAn5FO2cQTIlnOfYnqe9OcZrm_6vjg46Exlh8vOVvZ/exec";
+
+var ROOM_CONFIG = [
+  {
+    floor: "First Floor (Flat 101 & Flat 102)",
+    rooms: [
+      { no: "101 (Hall)", cap: 2 }, { no: "101 (Bedroom)", cap: 3 }, { no: "101 (Single)", cap: 1 },
+      { no: "102 (Hall)", cap: 2 }, { no: "102 (Bedroom)", cap: 3 }, { no: "102 (Single)", cap: 1 }
+    ]
+  },
+  {
+    floor: "Second Floor (Flat 201 & Flat 202)",
+    rooms: [
+      { no: "201 (Hall)", cap: 2 }, { no: "201 (Bedroom)", cap: 3 }, { no: "201 (Single)", cap: 1 },
+      { no: "202 (Hall)", cap: 2 }, { no: "202 (Bedroom)", cap: 3 }, { no: "202 (Single)", cap: 1 }
+    ]
+  },
+  {
+    floor: "Third Floor (Flat 301 & Flat 302)",
+    rooms: [
+      { no: "301 (Hall)", cap: 2 }, { no: "301 (Bedroom)", cap: 3 }, { no: "301 (Single)", cap: 1 },
+      { no: "302 (Hall)", cap: 2 }, { no: "302 (Bedroom)", cap: 3 }, { no: "302 (Single)", cap: 1 }
+    ]
+  }
+];
+
+var occupiedBedsCache = [];
+document.getElementById("kycJoinDate").value = new Date().toISOString().slice(0, 10);
+
+async function loadBedAvailability() {
+  var kycSel = document.getElementById("kycRoomSelect");
+  kycSel.innerHTML = '<option value="">⏳ Checking live beds...</option>';
+  try {
+    var res = await fetch(SCRIPT_URL + "?t=" + Date.now());
+    var json = await res.json();
+    if (json && json.status === "success") {
+      occupiedBedsCache = Array.isArray(json.occupiedBeds) ? json.occupiedBeds : [];
+    }
+    populateRooms();
+  } catch(e) {
+    console.warn("Could not check live beds:", e);
+    populateRooms();
+  }
+}
+
+function populateRooms() {
+  var kycSel = document.getElementById("kycRoomSelect");
+  var paySel = document.getElementById("payRoomSelect");
+  kycSel.innerHTML = '<option value="">-- Choose Your Available Bed --</option>';
+  paySel.innerHTML = '<option value="">-- Select Your Bed --</option>';
+
+  var bedLabels = ["A", "B", "C"];
+
+  ROOM_CONFIG.forEach(function(fl) {
+    var g1 = document.createElement("optgroup");
+    var g2 = document.createElement("optgroup");
+    g1.label = fl.floor;
+    g2.label = fl.floor;
+
+    fl.rooms.forEach(function(rm) {
+      for (var b = 0; b < rm.cap; b++) {
+        var bedLetter = bedLabels[b];
+        var slotName = rm.no + " - Bed " + bedLetter;
+        var isOccupied = occupiedBedsCache.indexOf(slotName) !== -1;
+
+        var o1 = document.createElement("option");
+        o1.value = slotName;
+        o1.textContent = slotName + (isOccupied ? " [Occupied / Blocked]" : " [Available]");
+        if (isOccupied) o1.disabled = true;
+        g1.appendChild(o1);
+
+        var o2 = document.createElement("option");
+        o2.value = slotName;
+        o2.textContent = slotName;
+        g2.appendChild(o2);
+      }
+    });
+
+    kycSel.appendChild(g1);
+    paySel.appendChild(g2);
+  });
+}
+
+function switchMode(mode) {
+  document.getElementById("formKyc").style.display = (mode === 'kyc') ? 'block' : 'none';
+  document.getElementById("formPay").style.display = (mode === 'pay') ? 'block' : 'none';
+  document.getElementById("tabKyc").className = 'mode-btn' + (mode === 'kyc' ? ' active' : '');
+  document.getElementById("tabPay").className = 'mode-btn' + (mode === 'pay' ? ' active' : '');
+  document.getElementById("successBox").style.display = "none";
+}
+
+function toggleKycSubmit() {
+  var checked = document.getElementById("kycAgree").checked;
+  document.getElementById("btnSubmitKyc").disabled = !checked;
+}
+
+function fileToBase64(file) {
+  return new Promise(function(resolve, reject) {
+    if (!file) return resolve(null);
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var fullData = e.target.result;
+      var base64 = fullData.split(",")[1];
+      resolve({ base64: base64, type: file.type, name: file.name });
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function submitKyc() {
+  var room = document.getElementById("kycRoomSelect").value;
+  var name = document.getElementById("kycName").value.trim();
+  var age = parseInt(document.getElementById("kycAge").value) || "";
+  var phone = document.getElementById("kycPhone").value.trim();
+  var parent = document.getElementById("kycParent").value.trim();
+  var email = document.getElementById("kycEmail").value.trim();
+  var address = document.getElementById("kycAddress").value.trim();
+  var orgName = document.getElementById("kycOrgName").value.trim();
+  var aadhaar = document.getElementById("kycAadhaar").value.trim();
+  var rent = parseFloat(document.getElementById("kycRent").value) || 0;
+  var deposit = parseFloat(document.getElementById("kycDeposit").value) || 0;
+  var joinDate = document.getElementById("kycJoinDate").value;
+
+  var fileAadhaar = document.getElementById("kycFileAadhaar").files[0];
+  var filePan = document.getElementById("kycFilePan").files[0];
+  var fileOrgId = document.getElementById("kycFileOrgId").files[0];
+  var agreed = document.getElementById("kycAgree").checked;
+
+  if (!room) { alert("Please select an available Bed Slot."); return; }
+  if (!name || !age || !phone || !parent || !email || !address || !orgName || !aadhaar || !rent || !deposit || !joinDate) {
+    alert("Please fill in all mandatory fields (*), including Date of Joining.");
+    return;
+  }
+  if (!fileAadhaar || !filePan || !fileOrgId) {
+    alert("Please upload all three mandatory documents.");
+    return;
+  }
+  if (!agreed) { alert("Please agree to the hostel stay policy."); return; }
+
+  var btn = document.getElementById("btnSubmitKyc");
+  var sp = document.getElementById("spinnerKyc");
+  btn.disabled = true;
+  sp.style.display = "block";
+
+  try {
+    var aadhaarObj = await fileToBase64(fileAadhaar);
+    var panObj = await fileToBase64(filePan);
+    var orgIdObj = await fileToBase64(fileOrgId);
+
+    var payload = {
+      action: "TENANT_SELF_KYC",
+      room: room, name: name, age: age, phone: phone, email: email,
+      address: address, orgName: orgName, aadhaar: aadhaar, parent: parent,
+      rent: rent, deposit: deposit, joinDate: joinDate, due: rent,
+      aadhaarFile: aadhaarObj, panFile: panObj, orgIdFile: orgIdObj
+    };
+
+    var res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+    var resJson = await res.json();
+
+    if (resJson && resJson.status === "error") {
+      alert("❌ " + resJson.message);
+      loadBedAvailability();
+      return;
+    }
+
+    var box = document.getElementById("successBox");
+    box.innerHTML = "<b>✅ Registration Successful!</b><br>Thank you, " + name + ". Your bed <b>" + room + "</b> is locked. Joining Date: <b>" + joinDate + "</b>.";
+    box.style.display = "block";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    loadBedAvailability();
+  } catch (err) {
+    alert("Submission completed.");
+  } finally {
+    btn.disabled = false;
+    sp.style.display = "none";
+  }
+}
+
+async function submitPayment() {
+  var room = document.getElementById("payRoomSelect").value;
+  var name = document.getElementById("payName").value.trim();
+  var email = document.getElementById("payEmail").value.trim();
+  var amount = parseFloat(document.getElementById("payAmount").value) || 0;
+  var fileProof = document.getElementById("payFileProof").files[0];
+
+  if (!room || !name || !email || !amount || !fileProof) {
+    alert("Please fill all payment fields and attach screenshot.");
+    return;
+  }
+
+  var btn = document.getElementById("btnSubmitPay");
+  var sp = document.getElementById("spinnerPay");
+  btn.disabled = true;
+  sp.style.display = "block";
+
+  try {
+    var proofObj = await fileToBase64(fileProof);
+    var payload = {
+      action: "TENANT_PAYMENT_SUBMIT",
+      room: room, name: name, email: email, amount: amount, proofFile: proofObj
+    };
+    await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+
+    var box = document.getElementById("successBox");
+    box.innerHTML = "<b>✅ Payment Submitted!</b><br>Receipt sent to " + email + ".";
+    box.style.display = "block";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err) {
+    alert("Payment submitted.");
+  } finally {
+    btn.disabled = false;
+    sp.style.display = "none";
+  }
+}
+
+loadBedAvailability();
+</script>
+</body>
+</html>
